@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/java/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/java/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/java-versions/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/java-versions/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-starter/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-starter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-surefire-compatibility/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-surefire-compatibility/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/multi-release-jar/default/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/multi-release-jar/default/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/vintage/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/vintage/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

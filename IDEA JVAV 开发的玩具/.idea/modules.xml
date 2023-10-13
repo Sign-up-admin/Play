@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/IDEA JVAV 开发的玩具.iml" filepath="$PROJECT_DIR$/IDEA JVAV 开发的玩具.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/java-versions/java-versions.iml" filepath="$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/java-versions/java-versions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/junit5-main.iml" filepath="$PROJECT_DIR$/.idea/modules/junit5-main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-starter/maven-starter.iml" filepath="$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-starter/maven-starter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-surefire-compatibility/maven-surefire-compatibility.iml" filepath="$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/maven-surefire-compatibility/maven-surefire-compatibility.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/multi-release-jar/default/multi-release-jar.iml" filepath="$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/multi-release-jar/default/multi-release-jar.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java/project.iml" filepath="$PROJECT_DIR$/java/project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/vintage/vintage.iml" filepath="$PROJECT_DIR$/junit5-main/platform-tooling-support-tests/projects/vintage/vintage.iml" />
+    </modules>
+  </component>
+</project>

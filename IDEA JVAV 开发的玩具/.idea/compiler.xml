@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="maven-starter" />
+        <module name="project" />
+        <module name="java-versions" />
+        <module name="multi-release-jar" />
+        <module name="vintage" />
+        <module name="maven-surefire-compatibility" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="java-versions" target="1.5" />
+      <module name="maven-starter" target="1.8" />
+      <module name="maven-surefire-compatibility" target="1.8" />
+      <module name="multi-release-jar" target="1.5" />
+      <module name="project" target="17" />
+      <module name="vintage" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
