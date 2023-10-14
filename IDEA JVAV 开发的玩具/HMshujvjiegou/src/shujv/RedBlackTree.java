@@ -107,23 +107,65 @@ public class RedBlackTree {
 
     public boolean isRed(Node node) {
         //所有null节点视为黑色,再判断cloor属性
-        return node != null && node.color==RED;
+        return node != null && node.color == RED;
     }
+
     public boolean isBlack(Node node) {
         //所有null节点视为黑色,再判断cloor属性
-        return node == null || node.color==BLACK;
+        return node == null || node.color == BLACK;
     }
-    //右旋 包含1.对parent的处理 2.旋转后新根的父子关系
+    //右旋 包含1.对parent的处理 2.旋转后新根的父子关系（刷新爷爷节点的孩子们信息）
     //红（粉）色，是在上面，被下位，黄色是上位节点，绿色是换爹的节点
 
-    public void rightRotate(Node pink){
-        Node yellow=pink.left;
-        Node green =yellow.left;
+    public void rightRotate(Node pink) {
+        Node partent = pink.parent;//拿到爷爷
+        Node yellow = pink.left;
+        Node green = yellow.left;
         //需要在旋转之前把它们的爹处理好
         /*1.旋转之前绿色的爹是指向黄色，旋转之后指向pink
-        *
-        * */
-        yellow.right=pink;//yellow上位，red下来成为yellow的右孩子
-        pink.left=green;//换爹，高度不变，
+         * 2.黄色在旋转之前是pink粉色的，旋转之后如果是成为了根节点，就没有爹，不是成为根节点，就从爷爷节点的孙子变成爷爷的儿子
+         * 3.pink在旋转之后，parent变成yellow
+         * */
+        if (green != null) {
+            green.parent = pink;
+        }
+        yellow.parent = pink.parent;//因为如果yellow是根节点也没事，pink之前的parent是null
+
+        yellow.right = pink;//yellow上位，red下来成为yellow的右孩子
+        pink.left = green;//换爹，高度不变，
+        pink.parent = yellow;
+        //特殊情况
+        if (partent == null) {
+            root = yellow;
+
+        }
+        //如果原来爷爷的左孩子是pink（现在爷爷的left或者right还没更新，是指向pink）
+        else if (partent.left == pink) {
+            partent.left = yellow;//更新
+        } else {
+            partent.right = yellow;
+        }
     }
+
+    public void leftRotate(Node pink) {
+        Node parent = pink.parent;
+        Node yellow = pink.right;
+        Node green = yellow.left;
+        if (green != null) {
+            green.parent = pink;
+        }
+        yellow.left = pink;
+        yellow.parent = pink.parent;
+        pink.right = green;
+        pink.parent = yellow;
+        if (parent == null) {
+            root = yellow;
+        } else if (parent.left == pink) {
+            parent.left = yellow;
+        } else {
+            parent.right = yellow;
+        }
+
+    }
+    //想必一定听说过，红黑树插入删除复杂和恐怖
 }
