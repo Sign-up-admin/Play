@@ -14,7 +14,7 @@ import static shujv.RedBlackTree.Color.BLACK;
 2. 所有 null 视为黑色
 3. 红色节点不能相邻
 4.根节点是黑色
-5. 从根到任意一个叶于节点,路径中的黑色节点数一样(黑色完美平衡)*/
+5. 从根到任意一个叶于节点（叶子节点是null值，黑色）,简单路径（不能出现向上访问）中的黑色节点数一样(黑色完美平衡)*/
 public class RedBlackTree {
     //枚举类型
     public enum Color {
@@ -122,7 +122,7 @@ public class RedBlackTree {
         Node yellow = pink.left;
         Node green = yellow.left;
         //需要在旋转之前把它们的爹处理好
-        /*1.旋转之前绿色的爹是指向黄色，旋转之后指向pink
+        /* 1.旋转之前绿色的爹是指向黄色，旋转之后指向pink
          * 2.黄色在旋转之前是pink粉色的，旋转之后如果是成为了根节点，就没有爹，不是成为根节点，就从爷爷节点的孙子变成爷爷的儿子
          * 3.pink在旋转之后，parent变成yellow
          * */
@@ -167,5 +167,89 @@ public class RedBlackTree {
         }
 
     }
+
     //想必一定听说过，红黑树插入删除复杂和恐怖
+    /*新增和更新
+     * 正常增，遇到红红不平衡进行调整
+     * params：key——键
+     * value-值
+     * */
+    public void put(int key, Object value) {
+        Node p = root;//指针
+        Node parent = null;//记录父节点
+        while (p != null) {
+            parent = p;
+            if (key < p.key) {
+                p = p.left;
+            } else if (key > p.key) {
+                p = p.right;
+            } else {
+                p.value = value;//更新的逻辑
+                return;
+            }
+
+        }
+        //等循环结束，还没找到说明没有节点，走新建节点逻辑
+        Node inserted = new Node(key, value);
+        //是根节点的情况(作为第一个添加的节点)
+        if (parent == null) {
+            root = inserted;//那就成为根节点
+        }
+        //如果已经有节点了，需要添加节点，哪需要添加到parent的左孩子还是右孩子？
+        else if (key < parent.key) {
+            parent.left = inserted;
+            inserted.parent = parent;//更新父亲信息
+            //到
+        } else {
+            parent.right = inserted;
+            inserted.parent = parent;
+        }
+        fixRedRed(inserted);
+
+    }
+
+    /*插入节点均视为红色节点--参见黑马红黑树
+     * case 1 插入节点是根节点，直接将根节点变黑
+     * case 2 插入节点的父亲节点是黑色，树的红黑性质不变，不进行调整
+     * 插入节点的父亲为红色，触发红红相邻
+     * case 3（通过改变节点颜色就能重新平衡的情况）
+     *        叔叔为红色 父亲变为黑色节点，为了保证黑色平衡，连带的叔叔节点也变为黑色节点
+     *        爷爷如果是黑色不变，会造成这颗子树黑色过多，因此爷爷节点变为红色节点
+     *        爷爷如果变成红色，可能会接着触发红红相邻，因此对爷爷进行递归调整
+     * case 4 叔叔为黑色
+     *
+     * */
+    //重新恢复平衡方法，针对父节点和子节点都是红色的情况，
+    public void fixRedRed(Node x) {
+        //case 1 插入节点是根节点，直接将根节点变黑
+        if (x == root) {
+            x.color = BLACK;
+            return;
+        }
+        //case 2 插入节点的父亲节点是黑色，树的红黑性质不变，不进行调整
+        if (isBlack(x.parent)) {
+            return;
+        }
+        //case3,先拿到父亲，叔叔，爷爷
+        Node parent = x.parent;
+        Node unlce = x.uncle();
+        Node grandParnet = x.parent.parent;
+        //解决叔叔是红色的情况，也是递归的条件
+        if (isRed(unlce)) {
+            parent.color = BLACK;
+            unlce.color = BLACK;
+            grandParnet.color = RED;
+            fixRedRed(grandParnet);
+            return;
+        }
+    }
+
+    /*删除
+     * 正常删除，会用到李代桃僵技巧，遇到黑黑不平衡进行调整
+     * params：key——键
+     * */
+    public void remove(int key) {
+
+    }
+
 }
