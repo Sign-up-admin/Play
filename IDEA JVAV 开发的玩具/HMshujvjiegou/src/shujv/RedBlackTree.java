@@ -242,6 +242,38 @@ public class RedBlackTree {
             fixRedRed(grandParnet);
             return;
         }
+        /*case4 叔叔为黑色节点（需要旋转和变色）
+         *1.父亲为左孩子，插入点也是左孩子，此时是LL不平衡（父亲变黑祖父变红，对爷爷和父亲进行一次右旋）
+         *2.父亲为左孩子，插入节点是右孩子，此时LR不平衡（先父亲进行左旋，再）
+         *3.父亲为右孩子，插入节点也是右孩子，此时RR不平衡
+         *4.父亲为右孩子，插入节点是左孩子，此时RL不平衡
+         *
+         * */
+        //情况1
+        if (parent.isLeftChild() && x.isLeftChild()) {
+            parent.color = BLACK;//
+            grandParnet.color = RED;
+            rightRotate(grandParnet);
+            //情况2
+        } else if (parent.isLeftChild() && !x.isLeftChild()) {
+            leftRotate(parent);
+            x.color = BLACK;
+            grandParnet.color = RED;
+            rightRotate(grandParnet);
+            //情况3
+        } else if (!parent.isLeftChild() && !x.isLeftChild()) {
+            parent.color = BLACK;
+            grandParnet.color = RED;
+            leftRotate(grandParnet);
+            //情况4
+        } else if (!parent.isLeftChild() && x.isLeftChild()) {
+            rightRotate(parent);
+            x.color = BLACK;
+            grandParnet.color = RED;
+            leftRotate(grandParnet);
+
+        }
+
     }
 
     /*删除
@@ -251,5 +283,46 @@ public class RedBlackTree {
     public void remove(int key) {
 
     }
+    //查找节点方法
+    public Node find(int key){
+        Node p = root;//指针节点
+        //循环查找
+        while (p != null) {
+            if (p.key < key) {
+                p = p.left;//向左查找
+            } else if (p.key > key) {
+                p = p.right;//向右查找
+            }else {
+                return p;
+            }
+        }
+        //循环完了没找到，返回null
+        return null;
+    }
+    //查找剩余节点方法，意思就是查找删除剩下的（或者说这个节点的后继节点） 分几种情况 这一个节点没有孩子的时候 还有有两个孩子的时候，
+    //哪谁算删除剩下的呢
+    Node findReplaced(Node deleted){
+        //第一种情况，这个节点没有孩子（准确的说是红黑树中的nill叶子节点是黑色的null）
+        if (deleted.left==null&&deleted.right==null){
+            return null;
+        }
+        //第二种情况，它有一个孩子
+        if (deleted.left==null){
+            return deleted.right;
+        }
+        if (deleted.right==null){
+            return deleted.left;
+
+        }
+        //我们要到它的右子树去查找它的后继节点
+        //所以它的left
+        Node s=deleted.right;//继续向右查找
+        while (s.left!=null){
+            s=s.left;
+        }
+        return s;
+
+    }
+
 
 }
