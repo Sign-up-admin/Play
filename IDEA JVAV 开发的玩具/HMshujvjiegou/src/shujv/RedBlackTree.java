@@ -24,6 +24,7 @@ public class RedBlackTree {
     public Node root;
 
     public static class Node {
+
         public int key;
         Object value;
         public Node left;
@@ -116,37 +117,36 @@ public class RedBlackTree {
     //右旋 包含1.对parent的处理 2.旋转后新根的父子关系（刷新爷爷节点的孩子们信息）
     //红（粉）色，是在上面，被下位，黄色是上位节点，绿色是换爹的节点
 
-    public void rightRotate(Node pink) {
-        Node partent = pink.parent;//拿到爷爷
+    // 右旋 1. parent 的处理 2. 旋转后新根的父子关系
+    private void rightRotate(Node pink) {
+        Node parent = pink.parent;//拿到爷爷
         Node yellow = pink.left;
-        Node green = yellow.left;
         //需要在旋转之前把它们的爹处理好
         /* 1.旋转之前绿色的爹是指向黄色，旋转之后指向pink
          * 2.黄色在旋转之前是pink粉色的，旋转之后如果是成为了根节点，就没有爹，不是成为根节点，就从爷爷节点的孙子变成爷爷的儿子
          * 3.pink在旋转之后，parent变成yellow
          * */
+        Node green = yellow.right;
         if (green != null) {
             green.parent = pink;
         }
-        yellow.parent = pink.parent;//因为如果yellow是根节点也没事，pink之前的parent是null
-
-        yellow.right = pink;//yellow上位，red下来成为yellow的右孩子
+        yellow.right = pink;//因为如果yellow是根节点也没事，pink之前的parent是null(bug)
+        yellow.parent = parent;//yellow上位，red下来成为yellow的右孩子
         pink.left = green;//换爹，高度不变，
         pink.parent = yellow;
         //特殊情况
-        if (partent == null) {
+        if (parent == null) {
             root = yellow;
-
-        }
-        //如果原来爷爷的左孩子是pink（现在爷爷的left或者right还没更新，是指向pink）
-        else if (partent.left == pink) {
-            partent.left = yellow;//更新
+            //如果原来爷爷的左孩子是pink（现在爷爷的left或者right还没更新，是指向pink）
+        } else if (parent.left == pink) {
+            parent.left = yellow;
         } else {
-            partent.right = yellow;
+            parent.right = yellow;
         }
     }
 
-    public void leftRotate(Node pink) {
+    // 左旋
+    private void leftRotate(Node pink) {
         Node parent = pink.parent;
         Node yellow = pink.right;
         Node green = yellow.left;
@@ -154,7 +154,7 @@ public class RedBlackTree {
             green.parent = pink;
         }
         yellow.left = pink;
-        yellow.parent = pink.parent;
+        yellow.parent = parent;
         pink.right = green;
         pink.parent = yellow;
         if (parent == null) {
@@ -164,7 +164,6 @@ public class RedBlackTree {
         } else {
             parent.right = yellow;
         }
-
     }
 
     //想必一定听说过，红黑树插入删除复杂和恐怖
@@ -219,28 +218,31 @@ public class RedBlackTree {
      *
      * */
     //重新恢复平衡方法，针对父节点和子节点都是红色的情况，
-    public void fixRedRed(Node x) {
-        //case 1 插入节点是根节点，直接将根节点变黑
+    void fixRedRed(Node x) {
+        // case 1 插入节点是根节点，变黑即可
         if (x == root) {
             x.color = BLACK;
             return;
         }
-        //case 2 插入节点的父亲节点是黑色，树的红黑性质不变，不进行调整
+        // case 2 插入节点父亲是黑色，无需调整
         if (isBlack(x.parent)) {
             return;
         }
-        //case3,先拿到父亲，叔叔，爷爷
+        /* case 3 当红红相邻，叔叔为红时
+            需要将父亲、叔叔变黑、祖父变红，然后对祖父做递归处理
+        */
         Node parent = x.parent;
-        Node unlce = x.uncle();
-        Node grandParnet = x.parent.parent;
+        Node uncle = x.uncle();
+        Node grandparent = parent.parent;
         //解决叔叔是红色的情况，也是递归的条件
-        if (isRed(unlce)) {
+        if (isRed(uncle)) {
             parent.color = BLACK;
-            unlce.color = BLACK;
-            grandParnet.color = RED;
-            fixRedRed(grandParnet);
+            uncle.color = BLACK;
+            grandparent.color = RED;
+            fixRedRed(grandparent);
             return;
         }
+
         /*case4 叔叔为黑色节点（需要旋转和变色）
          *1.父亲为左孩子，插入点也是左孩子，此时是LL不平衡（父亲变黑祖父变红，对爷爷和父亲进行一次右旋）
          *2.父亲为左孩子，插入节点是右孩子，此时LR不平衡（先父亲进行左旋，再）
@@ -249,88 +251,28 @@ public class RedBlackTree {
          *
          * */
         //情况1
-        if (parent.isLeftChild() && x.isLeftChild()) {
-            parent.color = BLACK;//
-            grandParnet.color = RED;
-            rightRotate(grandParnet);
+        if (parent.isLeftChild() && x.isLeftChild()) { // LL
+            parent.color = BLACK;
+            grandparent.color = RED;
+            rightRotate(grandparent);
             //情况2
-        } else if (parent.isLeftChild() && !x.isLeftChild()) {
+        } else if (parent.isLeftChild()) { // LR
             leftRotate(parent);
             x.color = BLACK;
-            grandParnet.color = RED;
-            rightRotate(grandParnet);
+            grandparent.color = RED;
+            rightRotate(grandparent);
             //情况3
-        } else if (!parent.isLeftChild() && !x.isLeftChild()) {
+        } else if (!x.isLeftChild()) { // RR
             parent.color = BLACK;
-            grandParnet.color = RED;
-            leftRotate(grandParnet);
+            grandparent.color = RED;
+            leftRotate(grandparent);
             //情况4
-        } else if (!parent.isLeftChild() && x.isLeftChild()) {
+        } else { // RL
             rightRotate(parent);
             x.color = BLACK;
-            grandParnet.color = RED;
-            leftRotate(grandParnet);
+            grandparent.color = RED;
+            leftRotate(grandparent);
         }
-    }
-
-    //查找节点方法
-    public Node find(int key) {
-        Node p = root;//指针节点
-        //循环查找
-        while (p != null) {
-            if (p.key < key) {
-                p = p.left;//向左查找
-            } else if (p.key > key) {
-                p = p.right;//向右查找
-            } else {
-                return p;
-            }
-        }
-        //循环完了没找到，返回null
-        return null;
-    }
-
-    //查找剩余节点方法，意思就是查找删除剩下的（或者说这个节点的后继节点） 分几种情况 这一个节点没有孩子的时候 还有有两个孩子的时候，
-    //哪谁算删除剩下的呢
-    //这个后继节点意思是代替删除节点的节点，将来它的left指向被删除节点的left，right指向被删除节点的right
-    Node findReplaced(Node deleted) {
-        //第一种情况，这个节点没有孩子（准确的说是红黑树中的nill叶子节点是黑色的null）
-        if (deleted.left == null && deleted.right == null) {
-            return null;
-        }
-        //第二种情况，它有一个孩子，优先右孩子替代，
-        if (deleted.left == null) {
-            return deleted.right;
-        }
-        if (deleted.right == null) {
-            return deleted.left;
-        }
-        //我们要到它的右子树去查找它的后继节点
-        //所以它的left
-        Node s = deleted.right;//继续向右查找
-        while (s.left != null) {
-            s = s.left;
-        }
-        return s;
-    }
-    public boolean contains(int key) {
-        return find(key) != null;
-    }
-
-    /*删除
-     * 正常删除，会用到李代桃僵技巧，遇到黑黑不平衡进行调整
-     * 这个李代桃僵技巧就是说把后继节点和被删除节点，交换一下key值和数值，这样就可以避免进入有两个孩子的情况
-     *
-     * params：key——键
-     * */
-    public void remove(int key) {
-        Node deleted = find(key);
-        if (deleted == null) {
-            return;
-        }
-        doRemove(deleted);
-
-
     }
 
     //写个具体的删除操作doRemove，一个递归调用的方法
@@ -355,137 +297,195 @@ public class RedBlackTree {
         如果兄弟是右孩子,左侄于是红,RL 不平衡
         *
         * */
-
     //deleted和repalaced都是黑色节点的情况，我们抽象成一个方法
-    public void fixDoubleBlack(Node x){
-        //结束递归的条件，代表访问到了树的顶部
-        if (x==root){
+    public void remove(int key) {
+        Node deleted = find(key);
+        if (deleted == null) {
             return;
         }
-        Node parent=x.parent;
-        Node sibling=x.sibling();
-        //case3 兄弟节点是红色
-        if (isRed(sibling)){
-            if (x.isLeftChild()){
-                if (x.isLeftChild()){
-                    leftRotate(parent);
-                }else {
-                    rightRotate(parent);
-                }
-                parent.color=RED;
-                sibling.color=BLACK;
-                fixDoubleBlack(x);
-                return;
-            }
-            if (sibling!=null){
-                //case 4 兄弟是黑色，两个侄子也是黑色
-                if (sibling != null) {
-                    // case 4 兄弟是黑色, 两个侄子也是黑色
-                    if (isBlack(sibling.left) && isBlack(sibling.right)) {
-                        sibling.color = RED;
-                        if (isRed(parent)) {
-                            parent.color = BLACK;
-                        } else {
-                            fixDoubleBlack(parent);
-                        }
-                    }
-                    // case 5 兄弟是黑色, 侄子有红色
-                    else {
-                        // LL
-                        if (sibling.isLeftChild() && isRed(sibling.left)) {
-                            rightRotate(parent);
-                            sibling.left.color = BLACK;
-                            sibling.color = parent.color;
-                        }
-                        // LR
-                        else if (sibling.isLeftChild() && isRed(sibling.right)) {
-                            sibling.right.color = parent.color;
-                            leftRotate(sibling);
-                            rightRotate(parent);
-                        }
-                        // RL
-                        else if (!sibling.isLeftChild() && isRed(sibling.left)) {
-                            sibling.left.color = parent.color;
-                            rightRotate(sibling);
-                            leftRotate(parent);
-                        }
-                        // RR
-                        else {
-                            leftRotate(parent);
-                            sibling.right.color = BLACK;
-                            sibling.color = parent.color;
-                        }
-                        parent.color = BLACK;
-                    }
-                } else {
-                    // @TODO 实际也不会出现，触发双黑后，兄弟节点不会为 null
-                    fixDoubleBlack(parent);
-                }
+        doRemove(deleted);
+    }
 
+    public boolean contains(int key) {
+        return find(key) != null;
+    }
+
+    // 查找删除节点
+    private Node find(int key) {
+        Node p = root;
+        while (p != null) {
+            if (key < p.key) {//向左查找
+                p = p.left;
+            } else if (p.key < key) {//向右查找
+                p = p.right;
+            } else {
+                return p;
             }
         }
+        //循环完了没找到，返回null
+        return null;
     }
+
+    //查找剩余节点方法，意思就是查找删除剩下的（或者说这个节点的后继节点） 分几种情况 这一个节点没有孩子的时候 还有有两个孩子的时候，
+    //哪谁算删除剩下的呢
+    //这个后继节点意思是代替删除节点的节点，将来它的left指向被删除节点的left，right指向被删除节点的right
+    /*删除
+     * 正常删除，会用到李代桃僵技巧(findReplaced方法)，遇到黑黑不平衡进行调整
+     * 这个李代桃僵技巧就是说把后继节点和被删除节点，交换一下key值和数值，这样就可以避免进入有两个孩子的情况
+     *
+     * params：key——键
+     * */
+    private Node findReplaced(Node deleted) {
+        //第一种情况，这个节点没有孩子（准确的说是红黑树中的nill叶子节点是黑色的null）
+        if (deleted.left == null && deleted.right == null) {
+            return null;
+        }
+        //第二种情况，它有一个孩子，优先右孩子替代，
+        if (deleted.left == null) {
+            return deleted.right;
+        }
+        if (deleted.right == null) {
+            return deleted.left;
+        }
+        //我们要到它的右子树去查找它的后继节点
+        //所以它的left
+        Node s = deleted.right;//继续向右查找
+        while (s.left != null) {
+            s = s.left;
+        }
+        return s;
+    }
+
+    // 处理双黑 (case3、case4、case5)
+    private void fixDoubleBlack(Node x) {
+        //结束递归的条件，代表访问到了树的顶部
+        if (x == root) {
+            return;
+        }
+        Node parent = x.parent;
+        Node sibling = x.sibling();
+        // case 3 兄弟节点是红色
+        if (isRed(sibling)) {
+            if (x.isLeftChild()) {
+                leftRotate(parent);
+            } else {
+                rightRotate(parent);
+            }
+            parent.color = RED;
+            sibling.color = BLACK;
+            fixDoubleBlack(x);
+            return;
+        }
+        if (sibling != null) {
+            // case 4 兄弟是黑色, 两个侄子也是黑色
+            if (isBlack(sibling.left) && isBlack(sibling.right)) {
+                sibling.color = RED;
+                if (isRed(parent)) {
+                    parent.color = BLACK;
+                } else {
+                    fixDoubleBlack(parent);
+                }
+            }
+            // case 5 兄弟是黑色, 侄子有红色
+            else {
+                // LL
+                if (sibling.isLeftChild() && isRed(sibling.left)) {
+                    rightRotate(parent);
+                    sibling.left.color = BLACK;
+                    sibling.color = parent.color;
+                }
+                // LR
+                else if (sibling.isLeftChild() && isRed(sibling.right)) {
+                    sibling.right.color = parent.color;
+                    leftRotate(sibling);
+                    rightRotate(parent);
+                }
+                // RL
+                else if (!sibling.isLeftChild() && isRed(sibling.left)) {
+                    sibling.left.color = parent.color;
+                    rightRotate(sibling);
+                    leftRotate(parent);
+                }
+                // RR
+                else {
+                    leftRotate(parent);
+                    sibling.right.color = BLACK;
+                    sibling.color = parent.color;
+                }
+                parent.color = BLACK;
+            }
+        } else {
+            // @TODO 实际也不会出现，触发双黑后，兄弟节点不会为 null
+            fixDoubleBlack(parent);
+        }
+    }
+
     //写个具体的删除操作doRemove，一个递归调用的方法
-    public void doRemove(Node deleted) {
+    private void doRemove(Node deleted) {
         //拿到删剩下的节点
-        Node repalaced = findReplaced(deleted);
-        //表示没有孩子这种情况，要删除的节点是根节点，删完了，直接root=null，
+        Node replaced = findReplaced(deleted);
         Node parent = deleted.parent;//拿到临时父亲节点
-        if (repalaced == null) {
-            //这是判断只有root节点的情况，
+        //表示没有孩子这种情况，要删除的节点是根节点，删完了，直接root=null，
+        if (replaced == null) {
+            // case 1 删除的是根节点//这是判断只有root节点的情况，
             if (deleted == root) {
                 root = null;
             }//在真正的删除操作之前，进行节点颜色的判断，来判断是否进行平衡调整
             else {
                 if (isBlack(deleted)) {
                     //复杂调整，deleted和repalaced都是黑色节点的情况
-
+                    fixDoubleBlack(deleted);
                 } else {
-                    //红色叶子节点，不需要调整
+                    // 红色叶子, 无需任何处理
                 }
-            if (parent.isLeftChild()) {
-                parent.left = null;//删除叶子节点左孩子
-            } else {
-                parent.right = null;
-            }
-            deleted.parent = null;
+                if (deleted.isLeftChild()) {
+                    parent.left = null;//删除叶子节点左孩子
+                } else {
+                    parent.right = null;
+                }
+                deleted.parent = null;
             }
             return;
         }
-        //有一个孩子,那么这个孩子一定是红色的，要删除它，恢复红黑树平衡，
-        if (repalaced.left == null || repalaced.right == null) {
-            //表示没有孩子这种情况，要删除的节点是根节点，删完了，直接root=null
+        // //有一个孩子,那么这个孩子一定是红色的，要删除它，恢复红黑树平衡，
+        if (deleted.left == null || deleted.right == null) {
+            // case 1 删除的是根节点
             if (deleted == root) {
                 //交换，然后删除
-                root.key = repalaced.key;
-                root.value = repalaced.value;
+                root.key = replaced.key;
+                root.value = replaced.value;
                 root.left = root.right = null;//让节点的左右孩子等于null
                 //如果被删除节点是他父亲的左孩子
-            } else if (deleted.isLeftChild()) {
-                parent.left = repalaced;
             } else {
-                parent.right = repalaced;
+                if (deleted.isLeftChild()) {
+                    parent.left = replaced;
+                } else {
+                    parent.right = replaced;
+                }
+                replaced.parent = parent;
+                deleted.left = deleted.right = deleted.parent = null;
+                if (isBlack(deleted) && isBlack(replaced)) {
+                    // 复杂处理 @TODO 实际不会有这种情况 因为只有一个孩子时 被删除节点是黑色 那么剩余节点只能是红色不会触发双黑
+                    fixDoubleBlack(replaced);
+                } else {
+                    //删除的是黑色节点，repalaced节点变成黑色
+                    // case 2 删除是黑，剩下是红
+                    replaced.color = BLACK;
+                }
             }
-            repalaced.parent = parent;
-            deleted.left = deleted.right = deleted.parent = null;
-            if (isBlack(deleted)&&isBlack((repalaced))){
-                //复杂处理,deleted和repalaced都是黑色节点的情况
-            }else {
-                //删除的是黑色节点，repalaced节点变成黑色
-                repalaced.color=BLACK;
-            }
+            return;
         }
         //有两个孩子=>有一个孩子 或没有孩子
         //李带桃僵，就是把要删除节点替换成repalaced节点
+        // case 0 有两个孩子 => 有一个孩子 或 没有孩子
         //交换键值
-        int key = deleted.key;//临时key
-        deleted.key = repalaced.key;
-        repalaced.key = key;
+        int t = deleted.key;
+        deleted.key = replaced.key;
+        replaced.key = t;
         //交换value
-        Object value = deleted.value;
-        deleted.value = repalaced.value;
-        repalaced.value = value;
-        doRemove(repalaced);
+        Object v = deleted.value;
+        deleted.value = replaced.value;
+        replaced.value = v;
+        doRemove(replaced);
     }
-
 }
