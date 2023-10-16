@@ -283,8 +283,9 @@ public class RedBlackTree {
     public void remove(int key) {
 
     }
+
     //查找节点方法
-    public Node find(int key){
+    public Node find(int key) {
         Node p = root;//指针节点
         //循环查找
         while (p != null) {
@@ -292,33 +293,34 @@ public class RedBlackTree {
                 p = p.left;//向左查找
             } else if (p.key > key) {
                 p = p.right;//向右查找
-            }else {
+            } else {
                 return p;
             }
         }
         //循环完了没找到，返回null
         return null;
     }
+
     //查找剩余节点方法，意思就是查找删除剩下的（或者说这个节点的后继节点） 分几种情况 这一个节点没有孩子的时候 还有有两个孩子的时候，
     //哪谁算删除剩下的呢
-    Node findReplaced(Node deleted){
+    Node findReplaced(Node deleted) {
         //第一种情况，这个节点没有孩子（准确的说是红黑树中的nill叶子节点是黑色的null）
-        if (deleted.left==null&&deleted.right==null){
+        if (deleted.left == null && deleted.right == null) {
             return null;
         }
         //第二种情况，它有一个孩子
-        if (deleted.left==null){
+        if (deleted.left == null) {
             return deleted.right;
         }
-        if (deleted.right==null){
+        if (deleted.right == null) {
             return deleted.left;
 
         }
         //我们要到它的右子树去查找它的后继节点
         //所以它的left
-        Node s=deleted.right;//继续向右查找
-        while (s.left!=null){
-            s=s.left;
+        Node s = deleted.right;//继续向右查找
+        while (s.left != null) {
+            s = s.left;
         }
         return s;
 
