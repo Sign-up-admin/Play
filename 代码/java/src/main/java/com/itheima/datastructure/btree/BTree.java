@@ -17,8 +17,8 @@ public class BTree {
 
         public Node(int t) { // t>=2
             this.t = t;
-            this.children = new Node[2 * t];
-            this.keys = new int[2 * t - 1];
+            this.children = new Node[2 * t];//一个节点能连最多2*t个节点
+            this.keys = new int[2 * t - 1];//一个节点最多容纳2 * t - 1个数据（key）
         }
 
         public Node(int[] keys) {
