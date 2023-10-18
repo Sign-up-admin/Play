@@ -8,4 +8,5 @@ int main() {//主函数入口，int型，c++中小括号大括号中括号意义
 	cout << "helloword" << endl;
 	return 0;
 }
+//nihao
 
