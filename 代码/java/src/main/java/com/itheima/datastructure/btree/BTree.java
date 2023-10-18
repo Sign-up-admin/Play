@@ -127,7 +127,6 @@ public class BTree {
     int t; // 树中节点最小度数
     final int MIN_KEY_NUMBER; // 最小key数目
     final int MAX_KEY_NUMBER; // 最大key数目
-
     public BTree() {
         this(2);
     }
