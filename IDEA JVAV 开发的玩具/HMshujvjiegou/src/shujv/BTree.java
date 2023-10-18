@@ -97,6 +97,7 @@ public class BTree {
     public boolean contains(int key) {
         return root.get(key) != null;
     }
+
     //2.新增
     /*要新增一个key，如果当前节点是叶子节点，就直接加入keys[]
     *但是一个节点的key数目不是越多越好，
@@ -109,55 +110,80 @@ public class BTree {
     。如果节点是非叶子节点,蒂要继续在 children[i]处继续递归插入
       无论哪种情况,插入完成后都可能超过节点 keys 数目限制,此时应当执行节点分裂
     * */
-    public void put(int key){
-        doPut(root,key);
+    public void put(int key) {
+        doPut(root, key);
     }
-    public void doPut(Node node,int key){
-        int i=0;
-        while (i<node.keyNumber){
+
+    public void doPut(Node node, int key) {
+        int i = 0;
+        while (i < node.keyNumber) {
             //更新的逻辑
-            if (node.keys[key]==key){
+            if (node.keys[key] == key) {
                 return;
             }
             //找到了插入位置，即为此时的 i
-            if (node.keys[key]>key){
-            break;
+            if (node.keys[key] > key) {
+                break;
             }
         }
         i++;
-        if (node.leaf){
-            node.insertKey(key,i);
-        }else {
-            doPut(node.children[i],key);
+        if (node.leaf) {
+            node.insertKey(key, i);
+        } else {
+            doPut(node.children[i], key);
         }
         /*分裂节点时数据一分为三，大的key出来到新建节点，中间的key返回到父亲节点，小的key留给自己
-        *新建节点为原来父亲节点的新孩子
-        * */
+         *新建节点为原来父亲节点的新孩子
+         * */
         /** 创建 right 节点(分裂后大于当前 left节点的),
          * 把t以后的key 和child 都拷贝过去 。
-         * t-1 处的key 插入到parent 的index,
-         * index 指 left 作为孩子时的索引
-         * right节点作为parent的孩子插入到index+1处
-        * */
+         * ○ t-1 处的key 插入到parent 的index,index 指 left 作为孩子时的索引
+         * ○ right节点作为parent的孩子插入到index+1处
+         *
+         * 如果 parent == null表示要分裂的是根节点,此时需要创建 新根,原来的根节点作为新根的孩于
+         * • 否则
+         * 。创建right节点(分裂后大于当前left节点的),把t 以后的 key 和child 都拷贝过去
+         * t-1 处的 key 插入到parent 的index处,index 指 left
+         * ,作为孩子时的索引
+         * right节点作为parent 的孩子插入到index+1处
+         *
+         * */
     }
+
     //分裂方法
-    private void split(Node left,Node parent,int index){
-        Node right=new Node(t);
-        right.leaf=left.leaf;//新节点的叶子属性和原来没分裂的节点叶子属性是一样的，它们应该都是left的父亲的叶子节点
+    private void split(Node left, Node parent, int index) {
+        //分裂的是根节点
+        if (parent == null) {
+            Node newRoot = new Node(t);
+            newRoot.leaf = false;
+            newRoot.insertChild(left, 0);
+            this.root = newRoot;
+            parent = newRoot;
+        }
+        Node right = new Node(t);
+        right.leaf = left.leaf;//新节点的叶子属性和原来没分裂的节点叶子属性是一样的，它们应该都是left的父亲的叶子节点
         //把left里一部分key放入right这个新节点中，就是两个数组之间拷贝
         //System.arraycopy 从哪个数组拷贝，从哪里开始拷贝，拷贝到哪个数组，从这个数组的哪里放入拷贝数据，放入数据的长度
-        System.arraycopy(left.keys,t,right.keys,0,t-1);
-        left.keyNumber=t-1;//新节点的keyNumber更新
-        right.keyNumber=t-1;
-        left.keyNumber=t-1;
-        //2.中间的key们 （t-1）处插入到父亲节点
-        int min=left.keys[t-1];
+        System.arraycopy(left.keys, t, right.keys, 0, t - 1);
+        //一种比较特殊的情况，非叶子节点的分裂
+        //如果当前要分裂的节点不是叶子节点,那么需要创建新的两个叶子节点，
+        if (left.leaf == false) {
+            System.arraycopy(left.children, t, right.children, 0, t);
+        }
+        //如果分裂的是，根节点的情况，那么要把根节点数据分三分，最大分到新right，最小分到新left节点
 
+        left.keyNumber = t - 1;//新节点的keyNumber更新
+        right.keyNumber = t - 1;
+        left.keyNumber = t - 1;
+        //2.中间的key们 （t-1）处插入到父亲节点
+        int min = left.keys[t - 1];
+        parent.insertKey(min, index);
         //3.right节点作为父亲节点的新孩子
+        parent.insertChild(right, index + 1);
 
 
     }
-    
+
     //3.删除
 
 }
