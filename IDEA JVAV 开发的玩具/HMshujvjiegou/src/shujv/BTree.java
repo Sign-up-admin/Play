@@ -1,5 +1,6 @@
 package shujv;
 
+import java.lang.module.FindException;
 import java.util.Arrays;
 
 //学点b树
@@ -72,7 +73,69 @@ public class BTree {
             System.arraycopy(children, index, children, index + 1, keyNumber - index);
             children[index] = child;//插入key
         }
+        //下面是九个工具方法，方便实现remove
 
+        //移除指定 index 处的 key
+        int removeKey(int index) {
+            int t = keys[index];
+            //利用数组剪切，从后向前覆盖要删除的那一个节点，从而实现“删除”
+            System.arraycopy(keys, index + 1, keys, index, --keyNumber - index);
+            return t;
+        }
+
+        //移除最左边的key
+        int removeLeftmostKey() {
+            return removeKey(0);
+        }
+
+        //移除最右边的key
+        int removeRightmostKey() {
+            return removeKey(keyNumber - 1);
+        }
+
+        //移除指定位置的child
+        Node removeChild(int index) {
+            Node t = children[index];
+            //利用数组剪切，从后向前覆盖要删除的那一个node节点，实现删除
+            System.arraycopy(children, index + 1, children, index, keyNumber - index);
+            children[keyNumber] = null;//help GC
+            return t;
+        }
+
+        // 移除最左边child
+        Node removeLeftmostChild() {
+            return removeChild(0);
+        }
+
+        // 移除最右边child
+        Node removeRightmostChild() {
+            return removeChild(keyNumber);
+        }
+
+        //index 孩子处左边的兄弟
+        Node childLeftSibling(int index) {
+            return index > 0 ? children[index - 1] : null;//index大于零？，是返回孩子处左边的兄弟，不是返回null（没有）
+            //如果这个节点已经是最左边的节点了返回null
+        }
+
+        //index 孩子处右边的兄弟
+        Node childRightSibling(int index) {
+            return index == keyNumber ? null : children[index + 1];//如果这个节点自己已经是最右边的节点了，返回null
+        }
+
+        // 复制当前节点的所有key 和child到 target
+        void moveToTarget(Node tatget) {
+            int start = tatget.keyNumber;
+            //如果不是叶子节点
+            if (!leaf) {
+                for (int i = 0; i <= keyNumber; i++) {
+                    tatget.children[start + i] = children[i];
+                }
+            }
+            for (int i = 0; i < keyNumber; i++) {
+                tatget.keys[tatget.keyNumber++] = keys[i];
+            }
+        }
     }
 
     Node root;
@@ -111,10 +174,10 @@ public class BTree {
       无论哪种情况,插入完成后都可能超过节点 keys 数目限制,此时应当执行节点分裂
     * */
     public void put(int key) {
-        doPut(root, key);
+        doPut(root, key, null, 0);
     }
 
-    public void doPut(Node node, int key) {
+    public void doPut(Node node, int key, Node parent, int index) {
         int i = 0;
         while (i < node.keyNumber) {
             //更新的逻辑
@@ -129,8 +192,14 @@ public class BTree {
         i++;
         if (node.leaf) {
             node.insertKey(key, i);
+            //可能达到上限
         } else {
-            doPut(node.children[i], key);
+            doPut(node.children[i], key, parent, i);//在这个节点不是叶子节点的情况中，我们要去处理的节点是node.children[i]
+            //当前节点的第二个孩子对吧》，所以父亲节点就是它自己
+            //可能达到上限
+        }
+        if (node.keyNumber == MAX_KEY_NUMBER) {
+            split(node, parent, index);
         }
         /*分裂节点时数据一分为三，大的key出来到新建节点，中间的key返回到父亲节点，小的key留给自己
          *新建节点为原来父亲节点的新孩子
@@ -148,10 +217,16 @@ public class BTree {
          * right节点作为parent 的孩子插入到index+1处
          *
          * */
+
+        /*当我们是叶子节点时，新插入一个key，插入的key是不是可能让这个节点key的有效
+         *数目被超过，
+         * 还有一种情况就是当我们是父节点的时候，叶子节点在进行分裂操作时，
+         * 把节点从叶子节点返回到父节点时，这个父节点就可能会超过key的最大值
+         * */
     }
 
-    //分裂方法
-    private void split(Node left, Node parent, int index) {
+    //分裂方法（要分裂的节点，要分裂节点的父亲，）
+    void split(Node left, Node parent, int index) {
         //分裂的是根节点
         if (parent == null) {
             Node newRoot = new Node(t);
@@ -185,5 +260,57 @@ public class BTree {
     }
 
     //3.删除
+    //删除某个节点的中的key
+    /*case1 当前节点是叶子节点，没找到，直接返回
+     *case2 当前节点是叶子节点，找到了，
+     * 困难
+     *case3 当前节点不是叶子节点，没找到
+     *case4 当前节点不是叶子节点，找到了
+     *case5 删除后key数目小于下限，下限就是t-1，上限是keynumber（不平衡）
+     *case6 根节点*/
+    public void remove(int key) {
+        doRremove(root, key);
+    }
+
+    public void doRremove(Node node, int key) {
+        int i = 0;
+        while (node.keyNumber > i) {//索引还在有效范围之内
+            //找到的情况,找的循环
+            if (node.keys[i] == key) {
+                break;
+            }
+            i++;
+            //只要遇到比待删除key大的值，我们就停下循环，当停下来时，它的索引i就是我们要进入的下一个节点的那个孩子
+            //i 找到；代表删除key 的索引
+            //i 没找到 代表到第i个孩子继续查找
+            //我想在循环外重新把这两种情况区分开了，是应该在做一次条件判断
+            //为了让代码的可读性更好些，可以让刚才这个判断条件给他抽成一个方法 ,选中条件，CTRL+alt+m
+            if (node.leaf) {//如果是叶子节点的话
+
+                if (found(node, key, i)) {//case1
+                    return;
+                } else {//case2
+                    node.removeKey(i);//i处就是key的索引，用方法删除;
+                    //删除完了，可能整个这个k的数目小于下限了
+                }
+            } else {//如果节点不是叶子节点的话
+                if (!found(node, key, i)) {//case3
+                    doRremove(node.children[i],key);
+                } else {//case4
+                    Node s=new Node();//s代表后继key所在的节点,它的起点是我们当前这个待删除key它的索引加一，这个孩子作为起点
+                }
+            }
+            //一旦小于下限，就进行平衡调整
+            if (node.keyNumber < MIN_KEY_NUMBER) {
+                //调整平衡，根节点和其他节点调整平衡的方式有所不同，这是case5，6搞的事情
+            }
+        }
+    }
+
+    //那个方法
+    private static boolean found(Node node, int key, int i) {
+        return i < node.keyNumber && node.keys[i] == key;
+    }
+
 
 }
