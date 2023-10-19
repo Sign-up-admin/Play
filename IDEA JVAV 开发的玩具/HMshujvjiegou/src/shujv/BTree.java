@@ -269,10 +269,10 @@ public class BTree {
      *case5 删除后key数目小于下限，下限就是t-1，上限是keynumber（不平衡）
      *case6 根节点*/
     public void remove(int key) {
-        doRremove(root, key);
+        doRemove(root, key);
     }
 
-    public void doRremove(Node node, int key) {
+    public void doRemove(Node node, int key) {
         int i = 0;
         while (node.keyNumber > i) {//索引还在有效范围之内
             //找到的情况,找的循环
@@ -295,9 +295,30 @@ public class BTree {
                 }
             } else {//如果节点不是叶子节点的话
                 if (!found(node, key, i)) {//case3
-                    doRremove(node.children[i],key);
+                    doRemove(node.children[i], key);
                 } else {//case4
-                    Node s=new Node();//s代表后继key所在的节点,它的起点是我们当前这个待删除key它的索引加一，这个孩子作为起点
+                    //和其它平衡类的什么红黑树，avl树一样，非叶子节点，找到了的话不能直接删除，我们要把它先替换成后继的key
+                    /*怎么找这个后继的key？就从它的右侧孩子一直向左走
+                     * 然后一直向左走，走到头，就能找到它的后继节点
+                     * 向左走就是child[index+1]
+                     * 每次都是找0号孩子，实现一直向左走
+                     * 走到头的判断，就是走到叶子节点了，那就表示找到这个后继节点key所在的节点了，
+                     * 然后这个节点中可能有多个key，我们再找他第零个索引位置key，就是在最左侧的key了
+                     * 这个就是我们的后继key*/
+                    // 1. 找到后继 key
+                    Node s = node.children[i + 1];//定义一个节点s，代表存在后继key的后继节点
+                    // 它的起点是我们当前节点中需要删除的key，它的索引加一的孩子作为起点
+                    //就是得到比他key值要大的那个孩子处，作为起点进行查找
+                    while (!s.leaf) {//不是叶子节点，继续向左走，循环结束，那它就是叶子节点了
+                        s = s.children[0];
+                    }
+                    //最左侧的key
+                    int skey = s.keys[0];
+                    // 2. 替换待删除 key
+                    node.keys[i] = skey;
+                    // 3. 删除后继 key
+                    doRemove(node.children[i+1],skey);
+
                 }
             }
             //一旦小于下限，就进行平衡调整
