@@ -1,6 +1,7 @@
 package shujv;
 
-import java.lang.module.FindException;
+//import java.lang.module.FindException;
+
 import java.util.Arrays;
 
 //学点b树
@@ -317,7 +318,7 @@ public class BTree {
                     // 2. 替换待删除 key
                     node.keys[i] = skey;
                     // 3. 删除后继 key
-                    doRemove(node.children[i+1],skey);
+                    doRemove(node.children[i + 1], skey);
 
                 }
             }
@@ -325,6 +326,55 @@ public class BTree {
             if (node.keyNumber < MIN_KEY_NUMBER) {
                 //调整平衡，根节点和其他节点调整平衡的方式有所不同，这是case5，6搞的事情
             }
+        }
+    }
+
+    //平衡方法，传入parent，平衡节点，索引
+    private void balance(Node parent, Node x, int i) {
+        //case 6 根节点
+        if (x == root) {
+            if (root.keyNumber == 0 && root.children[0] != null) {
+                root = root.children[0];
+            }
+            return;
+        }
+        Node left = parent.childLeftSibling(i);
+        Node right = parent.childRightSibling(i);
+        // case 5-1 左边富裕，右旋
+        if (left != null && left.keyNumber > MIN_KEY_NUMBER) {
+            //a) 父节点中前驱key旋转下来
+            x.insertKey(parent.keys[i - 1], 0);
+            if (!left.leaf) {
+                //b) left中最大的孩子节点换爹
+                x.insertChild(left.removeRightmostChild(), 0);
+            }
+            // c) left中最大的key旋转上父节点去
+            parent.keys[i - 1] = left.removeRightmostKey();
+            return;
+        }
+        // case 5-2 右边富裕，左旋
+        if (right != null && right.keyNumber > MIN_KEY_NUMBER) {
+            // a) 父亲节点中后继key 旋转下来
+            x.insertKey(parent.keys[i], x.keyNumber);
+            // b) right中最小的孩子节点换爹
+            if (!right.leaf) {
+                x.insertChild(right.removeLeftmostChild(), x.keyNumber); // @TODO 学员指出多加了1,是真的6
+            }
+            // c) right中最小的key旋转上父节点去
+            parent.keys[i] = right.removeRightmostKey();
+            return;
+        }
+        //case 5-3 两边都不够借，向左合并
+        if (left != null) {
+            //向左兄弟合并
+            parent.removeChild(i);
+            left.insertKey(parent.removeKey(i - 1), left.keyNumber);
+            x.moveToTarget(left);
+        } else {
+            //向自己合并
+            parent.removeChild(i + 1);
+            x.insertKey(parent.removeKey(i), x.keyNumber);
+            right.moveToTarget(x);
         }
     }
 
