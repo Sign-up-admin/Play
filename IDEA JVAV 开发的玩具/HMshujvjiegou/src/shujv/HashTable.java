@@ -20,7 +20,7 @@ package shujv;
  * 规定这里的编号叫哈希编码
  * */
 public class HashTable {
-    //
+
     static class Entry {
         int hash;//哈希码，它就是用来定位你接下来的这个键值它是存储在我们数组中哪个索引位置的
         Object key;//键（这是每个数据独一无二的）
@@ -36,6 +36,8 @@ public class HashTable {
 
     Entry[] table = new Entry[16];//建议表格的长度是二的次方数，因为可以进行位运算
     int size = 0;//代表元素在表格中的个数
+    float loadFacot = 0.75f;//定义负载因子,所以根据下面公式，负载因子乘以当前节点长度（size）等于table容量长度时，
+    int threshold = (int)(loadFacot * table.length);//类型强转，触发扩容
 
     //实现哈希表的增删改查
     //根据 hash 码获取元素val
@@ -57,7 +59,8 @@ public class HashTable {
         return null;
     }
 
-    //向 hash 表存入新key value 如果key 重复 ，则更新 value
+    //向
+    // hash 表存入新key value 如果key 重复 ，则更新 value
     //如果找到空位了，直接插入。那沿着链表如果有重复的key，那就做更新，没有重复的key就做添加
     //hash值重复，key不重复，就从链表的尾部添加新增的节点
     void put(int hash, Object key, Object value) {
