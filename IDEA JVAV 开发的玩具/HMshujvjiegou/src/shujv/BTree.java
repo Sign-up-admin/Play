@@ -298,7 +298,7 @@ public class BTree {
                 }
             } else {//如果节点不是叶子节点的话
                 if (!found(node, key, i)) {//case3
-                    doRemove(node,node.children[i],i, key);
+                    doRemove(node, node.children[i], i, key);
                 } else {//case4
                     //和其它平衡类的什么红黑树，avl树一样，非叶子节点，找到了的话不能直接删除，我们要把它先替换成后继的key
                     /*怎么找这个后继的key？就从它的右侧孩子一直向左走
@@ -320,7 +320,7 @@ public class BTree {
                     // 2. 替换待删除 key
                     node.keys[i] = skey;
                     // 3. 删除后继 key
-                    doRemove(node,node.children[i + 1],i+1, skey);
+                    doRemove(node, node.children[i + 1], i + 1, skey);
 
                 }
             }
