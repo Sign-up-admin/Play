@@ -248,9 +248,10 @@ public class BTree {
             balance(parent, node, index);
         }
     }
-
+    //i、就是index的意思
     private void balance(Node parent, Node x, int i) {
-        // case 6 根节点
+        // case 6 根节点，大部分情况下是可以不进行调整的，就是根节点keyNumber可以小于，
+        //特殊情况是，在根节点的孩子数目等于1时和根节点孩子数目等于1时
         if (x == root) {
             if (root.keyNumber == 0 && root.children[0] != null) {
                 root = root.children[0];
@@ -296,7 +297,6 @@ public class BTree {
             right.moveToTarget(x);
         }
     }
-
     private boolean found(Node node, int key, int i) {
         return i < node.keyNumber && node.keys[i] == key;
     }

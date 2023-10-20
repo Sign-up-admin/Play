@@ -270,10 +270,12 @@ public class BTree {
      *case5 删除后key数目小于下限，下限就是t-1，上限是keynumber（不平衡）
      *case6 根节点*/
     public void remove(int key) {
-        doRemove(root, key);
+        //根节点没有父亲，所以父亲是null，
+        doRemove(null, root, 0, key);
     }
 
-    public void doRemove(Node node, int key) {
+    //这个方法传入，被删除节点的父母，被删除节点和它的索引，key值
+    public void doRemove(Node parent, Node node, int index, int key) {
         int i = 0;
         while (node.keyNumber > i) {//索引还在有效范围之内
             //找到的情况,找的循环
@@ -296,7 +298,7 @@ public class BTree {
                 }
             } else {//如果节点不是叶子节点的话
                 if (!found(node, key, i)) {//case3
-                    doRemove(node.children[i], key);
+                    doRemove(node,node.children[i],i, key);
                 } else {//case4
                     //和其它平衡类的什么红黑树，avl树一样，非叶子节点，找到了的话不能直接删除，我们要把它先替换成后继的key
                     /*怎么找这个后继的key？就从它的右侧孩子一直向左走
@@ -318,13 +320,14 @@ public class BTree {
                     // 2. 替换待删除 key
                     node.keys[i] = skey;
                     // 3. 删除后继 key
-                    doRemove(node.children[i + 1], skey);
+                    doRemove(node,node.children[i + 1],i+1, skey);
 
                 }
             }
             //一旦小于下限，就进行平衡调整
             if (node.keyNumber < MIN_KEY_NUMBER) {
                 //调整平衡，根节点和其他节点调整平衡的方式有所不同，这是case5，6搞的事情
+                balance(parent, node, index);
             }
         }
     }
@@ -332,6 +335,9 @@ public class BTree {
     //平衡方法，传入parent，平衡节点，索引
     private void balance(Node parent, Node x, int i) {
         //case 6 根节点
+        // case 6 根节点，大部分情况下是可以不进行调整的，就是根节点keyNumber可以小于，
+        //特殊情况是，在根节点的孩子数目等于1时和根节点孩子数目等于1时，就用它唯一这个孩子替换 掉原来的旧的根节点
+        //成为新根节点就可以了
         if (x == root) {
             if (root.keyNumber == 0 && root.children[0] != null) {
                 root = root.children[0];
@@ -349,7 +355,7 @@ public class BTree {
                 x.insertChild(left.removeRightmostChild(), 0);
             }
             // c) left中最大的key旋转上父节点去
-            parent.keys[i - 1] = left.removeRightmostKey();
+            parent.keys[i - 1] = left.removeRightmostKey();//直接覆盖掉
             return;
         }
         // case 5-2 右边富裕，左旋

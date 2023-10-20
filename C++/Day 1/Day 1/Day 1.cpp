@@ -10,5 +10,11 @@ int main() {//主函数入口，int型，c++中小括号大括号中括号意义
 	//c艹中单字符一定要用单引号 char 'c','a'
 	return 0;
 }
-//nihao
+/*char 'c','a',' ','\n'     1byte
+* int 
+* 
+* 
+*	bool false / true;
+*	c艹中单字符一定要用单引号 char 'c','a'
+*/
 
