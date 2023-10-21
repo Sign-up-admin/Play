@@ -37,7 +37,7 @@ public class HashTable {
     Entry[] table = new Entry[16];//建议表格的长度是二的次方数，因为可以进行位运算
     int size = 0;//代表元素在表格中的个数
     float loadFacot = 0.75f;//定义负载因子,所以根据下面公式，负载因子乘以当前节点长度（size）等于table容量长度时，
-    int threshold = (int)(loadFacot * table.length);//类型强转，触发扩容
+    int threshold = (int) (loadFacot * table.length);//类型强转，触发扩容
 
     //实现哈希表的增删改查
     //根据 hash 码获取元素val
@@ -85,8 +85,80 @@ public class HashTable {
                 p = p.next;
             }
             p.next = new Entry(hash, key, value);//新增，退出循环时，说明p现在是在最后一个节点
-            //元素做了新增，那整个哈希表的size
+            //元素lk做了新增，那整个哈希表的size
             size++;
+        }
+    }
+
+    //扩容，当hash表中元素大于阈值时触发扩容
+    private void resize() {
+        Entry[] newTabel = new Entry[table.length << 1];//左移一位是乘二，右移是除二
+        //转移到新链表、把链表拆分，一个链表拆分成两个链表
+        for (int i = 0; i < table.length; i++) {
+            Entry p = table[i];//拿到每个链表头
+            if (p != null) {
+                //如果链表头不为空，拆分链表，移动到新数组
+                /*拆分规律
+                 *          拿hash值 模以旧table的长度
+                 *       一个链表最多拆成两个
+                 *        hash & table.length == 0 的一组（把它们串成一个数组 a ）
+                 *        hash & table.length != 0的一组（把它们串成一个数组 b ）
+                 *        拆分的过程是我们有一个p指针，代表原来旧链表中的元素
+                 *        b指针代表的是拆分后的新链表的尾指针
+                 *
+                 *                  p
+                 *       0->8->16->24->32->40->48->null
+                 *
+                 *                       a
+                 *       0->16->32->40->48->null
+                 *
+                 *               b
+                 *       8->24->40->null
+                 * */
+                Entry a = null;
+                Entry b = null;
+                //还需要两个变量来记录拆分后这两个节点的头指针
+                Entry aHead=null;
+                Entry bHead=null;
+                while (p != null) {
+                    if ((p.hash & table.length) == 0) {
+                        //正确指向
+                        if (a != null) {
+                            a.next = p;
+                        }
+                        //分配到a
+                        a = p;
+                    } else {
+                        //正确指向
+                        if (b != null) {
+                            b.next = p;
+                        }
+                        //分配到b
+                        b = p;
+                    }
+                    p = p.next;
+                }
+                //第一件收尾工作，让最后一位旧元素正确指向null
+                if (a != null) {
+                    a.next = null;
+                    newTabel[i]=aHead;//最后那件事情
+                }else {
+                    //第一次进入时记录
+                    aHead=p;
+                }
+                if (b != null) {
+                    b.next = null;
+                    newTabel[i+table.length]=bHead;//最后那件事情
+                }else {
+                    bHead=p;
+                }
+                //第二件收尾工作，现在a，b指针指向了它们各自的尾巴，但是我们要拿到这两个链表的头节点，这样才能让新table中存储各个新链表的头节点，塞到索引的某处
+                //最后一件事情，把新链表的头节点存入数组， a 这个新链表在 table 中的索引位置保持不变，b 它在原来的索引位置基础上 加 旧链表 长度
+                //规律； a链表 保持索引位置不变， b链表索引位置+table.length
+
+            }
+            table = newTabel; //代替掉旧数组
+            threshold = (int) (loadFacot * table.length);//重新计算新阈值，因为换了
         }
     }
 
