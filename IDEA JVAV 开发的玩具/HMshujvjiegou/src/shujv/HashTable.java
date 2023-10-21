@@ -118,13 +118,16 @@ public class HashTable {
                 Entry a = null;
                 Entry b = null;
                 //还需要两个变量来记录拆分后这两个节点的头指针
-                Entry aHead=null;
-                Entry bHead=null;
+                Entry aHead = null;
+                Entry bHead = null;
                 while (p != null) {
                     if ((p.hash & table.length) == 0) {
                         //正确指向
                         if (a != null) {
                             a.next = p;
+                        } else {
+                            //第一次进入时记录
+                            aHead = p;
                         }
                         //分配到a
                         a = p;
@@ -132,6 +135,9 @@ public class HashTable {
                         //正确指向
                         if (b != null) {
                             b.next = p;
+                        } else {
+                            //第一次进入时记录
+                            bHead = p;
                         }
                         //分配到b
                         b = p;
@@ -141,16 +147,11 @@ public class HashTable {
                 //第一件收尾工作，让最后一位旧元素正确指向null
                 if (a != null) {
                     a.next = null;
-                    newTabel[i]=aHead;//最后那件事情
-                }else {
-                    //第一次进入时记录
-                    aHead=p;
+                    newTabel[i] = aHead;//最后那件事情
                 }
                 if (b != null) {
                     b.next = null;
-                    newTabel[i+table.length]=bHead;//最后那件事情
-                }else {
-                    bHead=p;
+                    newTabel[i + table.length] = bHead;//最后那件事情
                 }
                 //第二件收尾工作，现在a，b指针指向了它们各自的尾巴，但是我们要拿到这两个链表的头节点，这样才能让新table中存储各个新链表的头节点，塞到索引的某处
                 //最后一件事情，把新链表的头节点存入数组， a 这个新链表在 table 中的索引位置保持不变，b 它在原来的索引位置基础上 加 旧链表 长度
@@ -212,4 +213,81 @@ public class HashTable {
      *              所以新的容量翻倍不会影响求余和索引，并且还会把链表的长度变短
      * */
 
+    /*为什么计算索引位子用式子hash & （数组长度-1）？
+        答：（hash & （数组长度-1））等价于（hash % 数组长度）
+        但实际上跟列出的第二个式子，最终运算结果是不一样的，但那前提是这时候数组的长度的必须是 二 的次方
+        10进制中去除以10，100，1000时，余数就是被除数的后1，2，3位（后几位）
+        2进制中去除以10，100，1000时，余数也是被除数后的1，2，3位（后几位）
+        实际上计算机在进行模运算的时候，就是把十进制转化位二进制，保留后几位，就是求余
+
+    * 为什么旧链表会拆分成两条，一条 hssh & 旧数组长度==0 另一条是不等于 0？
+        答：旧数组长度换算成二进制后，其中的 1 就是我们要检查的倒数第几位
+                旧数组长度 8 二进制 => 1000 检查 倒数第4位
+                旧数组长度 16 二进制 => 10000 检查倒数第5位
+           hash & 旧数组长度，就是用来检查扩容前后索引位置（余数）会不会变
+
+    * 为神马拆分后的两条链条，一个原来的索引不变，而另一个索引+旧数组长度？
+    *
+        它们都有个共同的前提，数组的长度是 2 的 n次方
+
+    */
+
+    /*生成hash码的算法就是哈希算法
+     *hash算法是将任意对象，分配一个编号的过程，其中编号是一个有限范围内的数字（如int 范围）
+     * hash值不可能做到绝对的唯一，参见鸽笼问题，有限 对 无限，
+     * 哈希算法和散列算法，摘要算法是同义词
+     * */
+
+    //写新的不需要手动输入hash码的各种方法
+    public Object get(Object key) {
+        //先根据key去调用它的hashCode的方法，生成hash码
+        //然后再间接调用刚才这个带两个参数的方法
+        int hash = getHash(key);
+        return get(hash, key);
+    }
+
+    public void put(Object key, Object value) {
+        int hash = getHash(key);
+        put(hash, key, value);
+    }
+
+    public Object remove(Object key) {
+        int hash = getHash(key);
+        return remove(hash, key);
+    }
+
+    private static int getHash(Object key) {
+        int hash = key.hashCode();
+        return hash;
+    }
+
+    public static void main(String[] args) {
+        String s1 = "bac";
+        String s2 = new String("abc");
+
+        System.out.println(s1.hashCode());
+        System.out.println(s2.hashCode());
+        int hash = 0;
+        for (int i = 0; i < s1.length(); i++) {
+            char c = s1.charAt(i);//从字符串中获取每一个字符
+            System.out.println((int) c);
+            hash = (hash << 5) + c - hash;//和之前是等价的，优化成位运算
+        }
+        System.out.println(hash);
+
+    }
+    /*实际上两个对象的hashcode在，是字符串类型，字符串一样时，code是一样的
+     * 那么，不难猜到，jdk对字符串类型的重写了hashCode方法
+     * 是如何生成的?
+     *       原则 :让值相同的字符串生成相同的 hash 码，尽量让值不同的字符串生成不同的 hash 码
+     *       因为在计算机中字符串中的每个字符都有数字11对应，所以
+     *       解决方法是让不同位置(比如个位，十位)的值乘上不同的权重，比如最高位的a可以让它乘上100
+     *       对于 abc a * 100 +b * 10 + c
+     *       对于bac b * 100 + a * 10 + c
+     *       区分开位置
+     *      经验表明，如果让权重是一个较大的质数，那么效果会更好，让哈希冲突的机会更低
+     *      比如31，最后来一个微笑（微笑）的优化
+     *      开发中常见的二代哈希算法MurmurHash
+     *
+     * */
 }
