@@ -1,11 +1,42 @@
 package shujv;
+
+import java.util.Arrays;
+
 /*
-* 希尔排序
-* 简单的说，就是分组实现插入，每组元素间隙称为gap
-* 每轮排序gap逐渐变小，直至gap为1完成排序
-* 对插入排序的优化，让元素更加快速的交换到最终位置
-* */
+ * 希尔排序
+ * 简单的说，就是分组实现插入，每组元素间隙称为gap
+ * 每轮排序gap逐渐变小，直至gap为1完成排序
+ * 对插入排序的优化，让元素更加快速的交换到最终位置
+ * */
 public class ShellSort {
+    //我们开始时gap是数组长度的一半，然后每次循环结束，都让gap间隙缩小一倍
+    public static void sotr(int[] a) {
+        //a.length / 2 =gap
+        for (int gap = a.length >> 1; gap >= 1; gap = gap >> 1) {
+            for (int low = gap; low < a.length; low++) {
+                int t = a[low];
+                int i = low - gap;
+                //自左向右找插入位置，如果比待插入元素大，则不断右移，空出插入位置
+                while (i >= 0 && t < a[i]) {
+                    a[i + gap] = a[i];
+                    i -= gap;
+                }
+                //找到插入位置
+                if (i != low - gap) {
+                    a[i + gap] = t;
+                }
+            }
+        }
+
+
+    }
+
+    public static void main(String[] args) {
+        int[] a = {9, 3, 7, 2, 5, 8, 1, 4};
+        System.out.println(Arrays.toString(a));
+        sotr(a);
+        System.out.println(Arrays.toString(a));
+    }
 }
 /*希尔排序（Shell Sort）是一种基于插入排序的排序算法，它被设计用来提高插入排序的效率。
 希尔排序的特点是通过将数组分成多个较小的子序列来排序，然后逐渐减小子序列的间隔，最终使整个数组有序。
