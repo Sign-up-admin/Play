@@ -7,6 +7,14 @@
 <!--    bean标签表示配置bean的类-->
 <!--    id属性表示给bean起名字-->
 <!--    class属性表示给bean定义类型-->
+<!--    这个是单标签，其实围堵标签也可以<bean id="service" class="com.itheima.service.impl.BookServiceImpl"></bean>-->
     <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
-    <bean id="service" class="com.itheima.service.impl.BookServiceImpl"/>
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+<!--    7.配置dao的关系，注意，容器是这么认为的，你的bookService类里边有个属性叫bookDao，得写在bookService bean里-->
+<!--    property标签表示配置当前bean的属性-->
+<!--    name标签表示配置哪一个具体的属性-->
+<!--    ref标签表示参照哪一个bean-->
+        <property name="bookDao" ref="bookDao"></property>
+    </bean>
+
 </beans>

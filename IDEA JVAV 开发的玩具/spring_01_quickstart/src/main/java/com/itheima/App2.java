@@ -1,5 +1,8 @@
 package com.itheima;
-
+/*ioc入门
+* di入门，基于ioc管理bean，Servcie中需要的dao对象通过 我们提供的方法 进入到Service中
+* Service与Dao两个bean之间的关系描述，通过配置实现
+* */
 import com.itheima.dao.BookDao;
 import com.itheima.service.BookService;
 import org.springframework.context.ApplicationContext;
