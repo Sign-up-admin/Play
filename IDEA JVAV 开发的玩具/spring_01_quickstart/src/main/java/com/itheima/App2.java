@@ -16,7 +16,7 @@ public class App2 {
         //获取bean,并强转成和类一样的类型
 //        BookDao bookDao = (BookDao) ctx.getBean("bookDao");
 //        bookDao.save();
-        BookService bookService = (BookService) ctx.getBean("service");
+        BookService bookService = (BookService) ctx.getBean("bookService");
         bookService.save();
 
     }
