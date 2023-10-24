@@ -14,5 +14,7 @@ public class BookDaoImpl implements BookDao {
     public void destory(){
         System.out.println("destory...");
     }
+    //在这里写完几个方法后，还要去spring容器配置那里声明它们是这些操作
+
 
 }

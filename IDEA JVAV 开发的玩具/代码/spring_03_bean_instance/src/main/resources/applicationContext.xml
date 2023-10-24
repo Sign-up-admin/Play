@@ -7,10 +7,11 @@
 <!--    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>-->
 
 
-    <!--方式二：使用静态工厂实例化bean-->
+    <!--方式二：使用静态工厂实例化bean,因为对象是工厂方法创建出来的，所以我们除了要告诉工厂类在哪，还有指出工厂类中的哪个方法是创建对象的-->
+<!--    使用工厂方法创建对象，调用工厂方法只会返回该对象，其它必要的功能就无法实现了-->
 <!--    <bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/>-->
 
-    <!--方式三：使用实例工厂实例化bean-->
+    <!--方式三：使用实例工厂实例化bean，因为是实例工厂，所以要先把工厂的对象造出来-->
 <!--    <bean id="userFactory" class="com.itheima.factory.UserDaoFactory"/>
 
     <bean id="userDao" factory-method="getUserDao" factory-bean="userFactory"/>-->

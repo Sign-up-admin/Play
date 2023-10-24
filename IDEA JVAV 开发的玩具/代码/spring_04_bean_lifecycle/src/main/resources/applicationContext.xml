@@ -6,6 +6,10 @@
     <!--init-method：设置bean初始化生命周期回调函数-->
     <!--destroy-method：设置bean销毁生命周期回调函数，仅适用于单例对象-->
     <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl" init-method="init" destroy-method="destory"/>
+<!--    配完了，运行我们发现，init运行了，但是destroy没有执行-->
+<!--    虚拟机启动，然后ioc容器加载了，配置也启动了，然后把bean初始化了，然后我们从ioc容器里面也拿到bean了，然后执行完了，也就是虚拟机退出的时候没有给你的bean销毁的机会-->
+<!--    为了能让在虚拟机退出之前销毁bean（这样可以执行destroy），有两种方法-->
+<!--    1.在虚拟机退出之前，我把我这个容器给关闭了。就是ctx.close-->
 
     <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
         <property name="bookDao" ref="bookDao"/>
