@@ -3,6 +3,31 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+<!--这波，依赖注入的方式（Di）-->
+<!-- 向一个类中传递数据的方式有几种？
+        普通方法（set方法）
+        构造方法
+     依赖注入描述了在容器中建立bean与bean之间的依赖关系的过程，如果bean运行需要的是数字或者字符串呢？
+        引用类型
+        简单类型 （基本数据类型与String）
+     依赖注入方式
+        setter注入
+           简单类型
+              1.在bean中定义引用类型属性并提供可访问的set方法
+              2.配置中使用property标签 value 属性注入简单类型数据
+           引用类型
+              1.在 bean 中定义引用类型属性并提供可访问的set方法
+              2.配置中使用 property 标签 ref 属性注入引用类型对象
+        构造器注入
+           简单类型
+              1.在 bean 中定义引用类型属性并提供可访问的 构造方法
+              2.配置中使用 constructor-arg 标签 value 属性注入简单类型数据
+           引用类型
+              1.在 bean 中定义引用类型属性并提供可访问的 构造方法
+              2.配置中使用 constructor-arg 标签ref属性注入引用类型对象
+       -->
+
+
     <!--注入简单类型-->
     <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
         <!--property标签：设置注入属性-->
