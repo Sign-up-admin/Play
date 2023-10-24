@@ -19,7 +19,7 @@
 <!--
     解决形参名称的问题，与形参名不耦合
     <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl">
-        根据构造方法参数类型注入
+        根据构造方法参数类型注入，直接不写名字，写上要注入形参的数据类型
         <constructor-arg type="int" value="10"/>
         <constructor-arg type="java.lang.String" value="mysql"/>
     </bean>
