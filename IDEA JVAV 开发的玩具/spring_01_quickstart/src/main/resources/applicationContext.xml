@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!--        1.导入spring的坐标spring-context-->
+<!--    2.配置对象进入ioc容器，进入ioc容器的对象称之为bean-->
+<!--    bean标签表示配置bean的类-->
+<!--    id属性表示给bean起名字-->
+<!--    class属性表示给bean定义类型-->
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+    <bean id="service" class="com.itheima.service.impl.BookServiceImpl"/>
+</beans>
