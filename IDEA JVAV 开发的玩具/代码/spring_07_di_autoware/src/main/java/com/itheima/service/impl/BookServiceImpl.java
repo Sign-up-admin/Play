@@ -4,6 +4,7 @@ import com.itheima.dao.BookDao;
 import com.itheima.service.BookService;
 
 public class BookServiceImpl implements BookService{
+    //要想可以进行自动装配，自动注入下面这个东西，seter方法还得提供
     private BookDao bookDao;
 
     public void setBookDao(BookDao bookDao) {

@@ -2,9 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean class="com.itheima.dao.impl.BookDaoImpl"/>
+<!--依赖注入功能中最强大的功能，依赖注入自动装配
+        ioc容器根据所依赖的资源在容器中自动查找并注入到bean中的过程称之为自动装配
+        自动装配的方式
+            按类型（常用） 要求类型匹配的时候必须是唯一的，类内部的类型，和ioc容器中dean的类型都是唯一才行
+            按名称  要求依赖的bean的 id 和被依赖bean的类中，定义类的 那个变量名一样。常见的报错是空指针
+            按构造方法
+            不启用自动装配-->
+    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
     <!--autowire属性：开启自动装配，通常使用按类型装配-->
-    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl" autowire="byType"/>
+<!--    <property name="bookDao" ref="bookDao" />这句话可以以不要了-->
+    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl" autowire="byType"><property name="bookDao" ref="bookDao" /></bean>
 
 </beans>
