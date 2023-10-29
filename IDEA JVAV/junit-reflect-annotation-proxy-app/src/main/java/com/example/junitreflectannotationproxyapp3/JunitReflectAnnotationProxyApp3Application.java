@@ -1,13 +1,13 @@
-package com.example.junitreflectannotationproxyapp;
+package com.example.junitreflectannotationproxyapp3;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JunitReflectAnnotationProxyAppApplication {
+public class JunitReflectAnnotationProxyApp3Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JunitReflectAnnotationProxyAppApplication.class, args);
+		SpringApplication.run(JunitReflectAnnotationProxyApp3Application.class, args);
 	}
 
 }
