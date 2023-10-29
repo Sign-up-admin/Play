@@ -3,6 +3,7 @@ package com.itheima.d2_reflect;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 //获取构造器的作用是初始化类的对象返回
 
 public class catTest {
@@ -52,17 +53,21 @@ public class catTest {
      * public viod setAccessible(bollean flag) 设置为true，表示禁止检查访问控制（暴力反射）
      * */
     @Test
-    public void testGetConstructor() throws NoSuchMethodException {
+    public void testGetConstructor() throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Class c = cat.class;
 //        获取类的某个构造器，无参数构造器
         Constructor declaredConstructor = c.getDeclaredConstructor();//获取无参数构造器
         System.out.println(declaredConstructor.getName()
                 + "declaredConstructor--------->"
                 + declaredConstructor.getParameterCount());
+        cat cat=(cat) c.newInstance();//调用初始化对象，并进行返回
+        System.out.println(cat);
 //        3，获取有参数构造器
         Constructor declaredConstructor13 = c.getDeclaredConstructor(String.class, int.class);
         System.out.println(declaredConstructor13.getName()
                 + "declaredConstructor13--------->"
                 + declaredConstructor13.getParameterCount());
+    cat cat2=(cat) declaredConstructor13.newInstance("Azuki",4);
+        System.out.println(cat2);
     }
 }

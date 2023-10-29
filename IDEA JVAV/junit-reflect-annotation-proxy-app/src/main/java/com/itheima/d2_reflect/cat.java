@@ -5,6 +5,7 @@ public class cat {
     private  int age;
 
     public cat() {
+        System.out.println("无参数构造器执行了");
     }
 
     public cat(String name, int age) {
@@ -26,5 +27,13 @@ public class cat {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "cat{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
     }
 }
